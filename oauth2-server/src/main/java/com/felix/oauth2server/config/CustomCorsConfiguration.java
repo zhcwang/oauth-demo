@@ -1,32 +1,38 @@
 package com.felix.oauth2server.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-/**
- * 部分接口需要跨域支持
- */
 @Configuration
 public class CustomCorsConfiguration {
 
     @Bean
-    public CorsFilter corsFilter() {
+    public FilterRegistrationBean corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowCredentials(false);
         corsConfiguration.addAllowedOrigin("*");
         corsConfiguration.addAllowedHeader("*");
-        corsConfiguration.addAllowedMethod("GET");
-        corsConfiguration.addAllowedMethod("POST");
         corsConfiguration.addAllowedMethod("OPTIONS");
+        corsConfiguration.addAllowedMethod("HEAD");
+        corsConfiguration.addAllowedMethod("GET");
+        corsConfiguration.addAllowedMethod("PUT");
+        corsConfiguration.addAllowedMethod("POST");
+        corsConfiguration.addAllowedMethod("DELETE");
+        corsConfiguration.addAllowedMethod("PATCH");
+
 ///        corsConfiguration.addExposedHeader("head1");
 ///        corsConfiguration.addExposedHeader("Location");
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/oauth/**", corsConfiguration);
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/user/me", corsConfiguration);
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/captcha/**", corsConfiguration);
-        return new CorsFilter(urlBasedCorsConfigurationSource);
+        CorsFilter corsFilter = new CorsFilter(urlBasedCorsConfigurationSource);
+        FilterRegistrationBean bean = new FilterRegistrationBean(corsFilter);
+        bean.setOrder(0);
+        return bean;
     }
 }

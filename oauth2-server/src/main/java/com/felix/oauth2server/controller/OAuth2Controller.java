@@ -1,5 +1,6 @@
 package com.felix.oauth2server.controller;
 
+import com.felix.oauth2server.config.CachesEnum;
 import com.felix.oauth2server.model.GrantType;
 import com.felix.oauth2server.model.OauthClient;
 import com.felix.oauth2server.model.ScopeDefinition;
@@ -7,7 +8,6 @@ import com.felix.oauth2server.service.OauthClientService;
 import com.felix.oauth2server.service.ScopeDefinitionService;
 import com.felix.oauth2server.token.GranterFactory;
 import com.felix.oauth2server.token.TokenGranter;
-import com.felix.oauth2server.config.CachesEnum;
 import io.jsonwebtoken.Jwts;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,8 +27,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URISyntaxException;
 import java.security.KeyPair;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -69,7 +69,7 @@ public class OAuth2Controller {
                                                               @RequestParam(value = "refresh_token", required = false) String refresh_token,
                                                               @RequestParam(value = "code", required = false) String code,
                                                               @RequestParam(value = "username", required = false) String username,
-                                                              @RequestParam(value = "password", required = false) String password) {
+                                                              @RequestParam(value = "password", required = false) String password) throws URISyntaxException {
         Map<String, Object> result = new HashMap<>(16);
         OauthClient client = oauthClientService.findByClientId(client_id);
         HttpHeaders headers = new HttpHeaders();
@@ -97,6 +97,7 @@ public class OAuth2Controller {
             result.put("status", 0);
             result.put("message", "Unsupported grant type.");
         } else if (GrantType.authorization_code == grant_type) {
+            
             if (StringUtils.isEmpty(redirect_uri) || !StringUtils.equalsIgnoreCase(client.getWebServerRedirectUri(), redirect_uri)) {
                 result.put("status", 0);
                 result.put("code", "invalid_redirect_uri");
@@ -209,5 +210,5 @@ public class OAuth2Controller {
         }
         return result;
     }
-
+    
 }

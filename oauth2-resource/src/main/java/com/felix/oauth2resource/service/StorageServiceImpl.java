@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
-@Service
+//@Service
 public class StorageServiceImpl implements StorageService {
     
     @Value("${storage.location}")

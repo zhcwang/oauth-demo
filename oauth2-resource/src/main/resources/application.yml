@@ -9,14 +9,14 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:10380
-          
+
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
   jackson:
     time-zone: UTC
-    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'    
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
   datasource:
     url: jdbc:postgresql://${POSTGRES_DB_SERVER}:${POSTGRES_DB_PORT}/book
     username: ${POSTGRES_DB_USERNAME}
@@ -30,7 +30,7 @@ spring:
       time_zone: UTC
       lob:
         non_contextual_creation: true
-    show-sql: false    
+    show-sql: false
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
@@ -41,8 +41,8 @@ spring:
           events:
             log:
               LOG_QUERIES_SLOWER_THAN_MS: 10
-              
-              
+
+
 springdoc:
   swagger-ui.path: /book/docs/swagger-ui
   api-docs.path: /book/docs/api-docs
@@ -51,8 +51,9 @@ app:
   build:
     time: '@build.time@'
   version: '@project.version@'
-  
-  
-  
+
+
+
 storage:
   location: C:\Users\zoncn00012\Documents\oauth\oauth2-demo\oauth2-resource\images
+  s3: shared-netdisk
