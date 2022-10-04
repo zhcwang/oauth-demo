@@ -1,10 +1,10 @@
 <template>
   <a-form class="book_form"
-      ref="formRef"
-      :model="formState"
-      :rules="rules"
-      :label-col="labelCol"
-      :wrapper-col="wrapperCol">
+          ref="formRef"
+          :model="formState"
+          :rules="rules"
+          :label-col="labelCol"
+          :wrapper-col="wrapperCol">
     <a-form-item ref="name" label="Book Name" name="name">
       <a-input v-model:value="formState.name"/>
     </a-form-item>
@@ -35,7 +35,8 @@
     </a-form-item>
 
     <a-form-item :wrapper-col="{ span: 14, offset: 10 }">
-      <a-button type="primary" @click="onSubmit">Create</a-button>
+      <a-button type="primary" @click="submit">Create</a-button>
+      <a-button type="error" @click="cancel">Cancel</a-button>
     </a-form-item>
   </a-form>
 
@@ -45,14 +46,23 @@
 import {defineComponent, reactive, ref, toRaw} from 'vue';
 import {LoadingOutlined, PlusOutlined} from '@ant-design/icons-vue';
 import {message} from 'ant-design-vue';
+import axios from "axios";
+// import axios from "axios";
 
+
+// parent child communication https://blog.csdn.net/bhq1711617151/article/details/119279151
 export default defineComponent({
   components: {
     LoadingOutlined,
     PlusOutlined,
   },
 
-  setup() {
+  data() {
+    return {};
+  },
+
+  setup(props, context) {
+
     const formRef = ref();
     const imageUrl = ref('');
 
@@ -65,7 +75,7 @@ export default defineComponent({
 
     const fileList = ref([]);
     const loading = ref(false);
- 
+
     const beforeUpload = file => {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
 
@@ -103,17 +113,58 @@ export default defineComponent({
       formRef.value.resetFields();
     };
 
-    const onSubmit = () => {
+    function convertBase64UrlToBlob (base64) {
+      let urlData = base64.dataURL
+      let type = base64.type
+      let bytes
+      if(urlData.split(',').length>1) {
+        bytes = window.atob(urlData.split(',')[1])
+      }else{
+        bytes = window.atob(urlData)
+      }
+      let ab = new ArrayBuffer(bytes.length)
+      let ia = new Uint8Array(ab)
+      for (let i = 0; i < bytes.length; i++) {
+        ia[i] = bytes.charCodeAt(i)
+      }
+      return new Blob([ab], { type: type })
+    }
+
+    const submit = () => {
       formRef.value
           .validate()
           .then(() => {
-            console.log('values', formState, toRaw(formState));
-            alert(JSON.stringify(toRaw(formState)))
+            let formData = toRaw(formState);
+            console.log('values', formState, formData);
+            axios({
+              method: 'post',
+              url: 'http://localhost:8085/api/books/',
+              //headers: {'content-type': 'application/x-www-form-urlencoded'},
+              headers: {'content-type': 'multipart/form-data'},
+              data: {
+                "name": formData.name,
+                "description": formData.description,
+                "reason": formData.reason,
+                "image": convertBase64UrlToBlob({
+                  "dataURL": formData.image.value,
+                  "type": "image/png"
+                })
+              }
+            }).then(res => {
+              context.emit('bookSaved', res.data)
+            }).catch(e => {
+              return Promise.reject(e)
+            });
           })
           .catch(error => {
-            console.log('error', error);
+            console.log('Unable to create a book', error);
+            message.error('Unable to create a book.');
           });
 
+    };
+
+    const cancel = () => {
+      context.emit('bookCanceled', null)
     };
 
     const selfUpload = ({file}) => {
@@ -140,22 +191,21 @@ export default defineComponent({
       formRef,
       labelCol: {
         span: 6,
-        style:{
-          
-        }
+        style: {}
       },
       wrapperCol: {
         span: 14,
       },
       formState,
       rules,
-      onSubmit,
+      submit,
+      cancel,
       resetForm,
       fileList,
       loading,
       imageUrl,
       beforeUpload,
-      selfUpload
+      selfUpload,
     };
   },
 });
@@ -164,8 +214,8 @@ export default defineComponent({
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.book_form{
- padding-top: 20px ;
-  
+.book_form {
+  padding-top: 20px;
+
 }
 </style>

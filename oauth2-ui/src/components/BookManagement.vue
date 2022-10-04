@@ -1,6 +1,6 @@
 <template>
   <div v-show="addMode === true">
-    <BookEdit></BookEdit>
+    <BookEdit @bookSaved="bookSaved" @bookCanceled="bookCanceled"></BookEdit>
   </div>
   <div v-show="addMode === false">
     <div class="management_book_operation">
@@ -8,16 +8,20 @@
     </div>
     <a-table
         :columns="columns"
-        :row-key="record => record.login.uuid"
+        :row-key="record => record.id"
         :data-source="dataSource"
         :pagination="pagination"
         :loading="loading"
         @change="handleTableChange"
     >
-      <template #name="{ text }">{{ text.first }} {{ text.last }}</template>
+      <template #name="{ record }">{{ record.name }}</template>
+      <template #image="{ record }">
+        <a-image :src=record.image></a-image>
+      </template>
+      <!--      <template #image="{ record }"><a :href=record.image target="_blank">{{ record.image }}</a></template>-->
       <template #expandedRowRender="{ record }">
         <p style="margin: 0">
-          {{ record.name }}
+          {{ record.reason }}
         </p>
       </template>
       <template #action="{ record }">
@@ -33,6 +37,7 @@
 import {usePagination} from 'vue-request';
 import {computed, defineComponent, ref} from 'vue';
 import BookEdit from "@/components/BookEdit";
+import axios from "axios";
 
 const columns = [
   {
@@ -54,16 +59,16 @@ const columns = [
     },
   },
   {
-    title: 'Reason',
-    dataIndex: 'reason',
+    title: 'Image',
+    dataIndex: 'image',
     sorter: false,
     width: '20%',
     slots: {
-      customRender: 'reason',
+      customRender: 'image',
     },
   },
   {
-    title: 'Created',
+    title: 'Created Time',
     dataIndex: 'createdOn',
     sorter: true,
     width: '20%',
@@ -83,12 +88,26 @@ const columns = [
 ];
 
 const queryData = params => {
-  return `https://randomuser.me/api?noinfo&${new URLSearchParams(params)}`;
+  let queryParams = Object.assign({}, params)
+  queryParams.page = queryParams.page - 1
+  for (let param in queryParams) {
+    if (queryParams[param] === undefined
+        || queryParams[param] === null
+        || queryParams[param] === ""
+    ) {
+      delete queryParams[param];
+    }
+  }
+  return axios({
+    method: 'get',
+    url: `http://localhost:8085/api/books/_my?${new URLSearchParams(queryParams)}`,
+  });
 };
 
 export default defineComponent({
   components: {BookEdit},
   setup() {
+    const total = ref(10)
     const {
       data: dataSource,
       run,
@@ -96,20 +115,32 @@ export default defineComponent({
       current,
       pageSize,
     } = usePagination(queryData, {
-      formatResult: res => res.results,
+      formatResult: res => {
+        let books = res.data.books
+        for (let book of books) {
+          book.createdOn = new Date(book.createdOn).toJSON().replace(/T|Z|(\.\D{3})/g, " ").trim();
+        }
+        total.value = res.data.total
+        return books;
+      },
       pagination: {
         currentKey: 'page',
         pageSizeKey: 'results',
       },
     });
+    const dataSourceRef = ref(dataSource)
     const pagination = computed(() => ({
-      total: 200,
+      total: total.value,
       current: current.value,
       pageSize: pageSize.value,
     }));
     let addMode = ref(false)
+    const sortFieldRef = ref(null)
+    const sortOrderRef = ref(null)
 
     const handleTableChange = (pag, filters, sorter) => {
+      sortFieldRef.value = sorter.field
+      sortOrderRef.value = sorter.order
       run({
         results: pag.pageSize,
         page: pag?.current,
@@ -120,12 +151,40 @@ export default defineComponent({
     };
 
     function handleDeleteBook(record) {
-      this.dataSource = this.dataSource.filter(item => item.email !== record.email);
+      // TODO: delete request 
+      this.dataSource = this.dataSource.filter(item => item.id !== record.id);
     }
 
     function handleAddBook() {
-      console.log(addMode)
       addMode.value = !addMode.value
+    }
+
+
+    function bookSaved(e) {
+      console.log('receive bookSaved', e)
+      addMode.value = false
+      let params = {
+        "results": pageSize.value,
+        "page": current.value - 1,
+      }
+      if (sortFieldRef.value && sortOrderRef.value) {
+        params['sortField'] = sortFieldRef.value
+        params['sortOrder'] = sortOrderRef.value
+      }
+      axios({
+        method: 'get',
+        url: `http://localhost:8085/api/books/_my?${new URLSearchParams(params)}`,
+      }).then(res => {
+        dataSourceRef.value = res.data.books
+        total.value = res.data.total
+      }).catch(e => {
+        return Promise.reject(e)
+      });
+    }
+
+    function bookCanceled(e) {
+      console.log('receive booCanceled', e)
+      addMode.value = false
     }
 
     return {
@@ -137,6 +196,8 @@ export default defineComponent({
       handleTableChange,
       handleDeleteBook: handleDeleteBook,
       handleAddBook,
+      bookSaved,
+      bookCanceled,
     };
   },
 });

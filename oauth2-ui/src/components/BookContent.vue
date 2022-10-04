@@ -88,8 +88,9 @@ export default defineComponent({
       method: 'get',
       url: "http://localhost:8085/api/books?pageNum=0&pageSize=10",
     }).then(res => {
-      console.log("resp" + JSON.stringify(res))
       this.books = res.data
+    }).catch(e => {
+      return Promise.reject(e)
     })
   }
 });

@@ -47,7 +47,6 @@ function validateAuthorizationCode(toPath) {
 axios.interceptors.request.use(function (config) {
     // Do something before request is sent
     config.headers['Authorization'] = 'Bearer ' + localStorage.getItem("Authorization");
-    console.log(JSON.stringify(config))
     return config;
 
 }, function (error) {
@@ -60,15 +59,44 @@ axios.interceptors.response.use(function (response) {
     return response;
 }, function (error) {
     // TODO: Request exception handler
+    let status = error.response.status
+    console.error(error.message)
+    if (status === 400) {
+        message.error('Bad Request.');
+    } else if (status === 401) {
+        localStorage.removeItem("Authorization")
+        localStorage.removeItem("refresh_token")
+        redirectToLoginPage()
+    } else if (status === 403) {
+        message.error('No Permissions.');
+    } else if (status >= 500) {
+        message.error('Server Error.');
+    }
     return Promise.reject(error);
 });
 
 const OAUTH_SERVER_ADDR = "http://localhost:10380/oauth"
 const OAUTH_SERVER_REDIRECT_URI = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/books";
 
+function redirectToLoginPage() {
+    message.error('Please login first.');
+    let state = uuidv4();
+
+    let url = OAUTH_SERVER_ADDR + "/authorize?client_id=book_share&response_type=code" +
+        "&state=" + state +
+        "&redirect_uri=" + OAUTH_SERVER_REDIRECT_URI;
+    // cache state
+    localStorage.setItem(state, window.location.href)
+
+    setTimeout(function () {
+        window.location.href = url
+    }, 3000);
+}
 
 router.beforeEach(async (to, from, next) => {
-    // http://localhost:8088/books?code=737141455d274ef4a19114a20b0fc485&state=123456
+
+
+// http://localhost:8088/books?code=737141455d274ef4a19114a20b0fc485&state=123456
     if (isAuthorizationCodeResponse(to)) {
         let redirectUrl = validateAuthorizationCode(to)
         if (!redirectUrl) {
@@ -99,20 +127,8 @@ router.beforeEach(async (to, from, next) => {
     } else {
         const token = localStorage.getItem('Authorization');
         if (token === null || token === '') {
-            message.error('Please login first.');
-
             // redirect url must be equals to http://localhost:8088/books
-            let state = uuidv4();
-
-            let url = OAUTH_SERVER_ADDR + "/authorize?client_id=book_share&response_type=code" +
-                "&state=" + state +
-                "&redirect_uri=" + OAUTH_SERVER_REDIRECT_URI;
-            // cache state
-            localStorage.setItem(state, window.location.href)
-
-            setTimeout(function () {
-                window.location.href = url
-            }, 3000);
+            redirectToLoginPage();
         } else {
             next();
         }

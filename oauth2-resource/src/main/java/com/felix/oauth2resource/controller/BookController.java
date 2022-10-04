@@ -2,6 +2,7 @@ package com.felix.oauth2resource.controller;
 
 import com.felix.oauth2resource.model.dto.BookDTO;
 import com.felix.oauth2resource.model.dto.BookView;
+import com.felix.oauth2resource.model.dto.PageableBookView;
 import com.felix.oauth2resource.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,13 @@ public class BookController {
         List<BookView> books = bookService.getBooks(pageRequest);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
+
+    @GetMapping("/_my")
+    public ResponseEntity<PageableBookView> getMyBooks(@RequestParam int page, @RequestParam int results, @RequestParam(required = false) String sortField, @RequestParam(required = false) String sortOrder) {
+        PageableBookView myBooks = bookService.getMyBooks(page, results, sortField, sortOrder);
+        return new ResponseEntity<>(myBooks, HttpStatus.OK);
+    }
+
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BookView> createBook(@ModelAttribute BookDTO dto) {

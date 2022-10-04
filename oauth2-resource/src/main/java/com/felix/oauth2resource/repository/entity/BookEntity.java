@@ -20,10 +20,10 @@ public class BookEntity extends AuditedEntity {
     @Column(columnDefinition = "varchar", nullable = false)
     private String name;
 
-    @Column(columnDefinition = "varchar", nullable = false)
+    @Column(columnDefinition = "varchar", nullable = true)
     private String description;
 
-    @Column(columnDefinition = "varchar", nullable = false)
+    @Column(columnDefinition = "varchar", nullable = true)
     private String reason;
 
     @Column(columnDefinition = "varchar", nullable = false)

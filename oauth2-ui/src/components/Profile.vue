@@ -19,6 +19,7 @@
 <script>
 import {UserOutlined} from '@ant-design/icons-vue';
 import {defineComponent} from 'vue';
+import jwtDecode from 'jwt-decode'
 
 export default defineComponent({
   components: {
@@ -27,13 +28,18 @@ export default defineComponent({
   name: 'UserProfile',
   data() {
     return {
-      userName: "boss_admin"
+      userName: ""
     }
   },
   methods: {
     logout() {
       alert('quit')
     }
+  },
+  created() {
+    let token = localStorage.getItem("Authorization");
+    const decoded = jwtDecode(token);
+    this.userName = decoded.sub
   }
 });
 

@@ -15,7 +15,7 @@
     </a-layout-sider>
     <a-layout>
       <a-layout-header style="background: #fff; padding: 0">
-        <UserProfile msg="UserProfile"></UserProfile>
+        <UserProfile></UserProfile>
       </a-layout-header>
       <a-layout-content style="margin: 0 16px">
         <div :style="{ background: '#fff', minHeight: '360px', marginTop: '16px' }">

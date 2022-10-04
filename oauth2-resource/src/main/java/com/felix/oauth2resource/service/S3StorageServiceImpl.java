@@ -20,7 +20,7 @@ import java.util.UUID;
 @Service
 public class S3StorageServiceImpl implements StorageService {
 
-    @Value("${storage.location.s3}")
+    @Value("${storage.s3}")
     private String bucket;
 
     private static final AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
@@ -45,9 +45,9 @@ public class S3StorageServiceImpl implements StorageService {
             Map<String, String> metadata = new HashMap<>();
             metadata.put("x-amz-meta-myVal", "test");
 
-            PutObjectRequest putObjectRequest = new PutObjectRequest(this.bucket, objectKey, multipartFile.getInputStream(), buildObjectMetadata(multipartFile.getSize()));
+            PutObjectRequest putObjectRequest = new PutObjectRequest(this.bucket, "zcwangtest/" + objectKey, multipartFile.getInputStream(), buildObjectMetadata(multipartFile.getSize()));
             s3Client.putObject(putObjectRequest);
-            return "https:" + this.bucket + ".s3.eu-central-1.amazonaws.com/zcwangtest/" + objectKey;
+            return "https://" + this.bucket + ".s3.eu-central-1.amazonaws.com/zcwangtest/" + objectKey;
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new RuntimeException(e);
