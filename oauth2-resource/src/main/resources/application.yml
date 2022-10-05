@@ -56,4 +56,6 @@ app:
 
 storage:
   location: C:\Users\zoncn00012\Documents\oauth\oauth2-demo\oauth2-resource\images
-  s3: shared-netdisk
+  s3:
+    region: eu-central-1
+    bucket: shared-netdisk

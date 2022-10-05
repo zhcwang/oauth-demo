@@ -27,7 +27,6 @@ public class BookController {
 
     @GetMapping
     public ResponseEntity<PageableBookView> getBooks(@RequestParam int pageNum, @RequestParam int pageSize, @RequestParam(required = false) String bookName) {
-        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
         PageableBookView books = bookService.getBooks(pageNum, pageSize, bookName);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }

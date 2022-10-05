@@ -12,7 +12,7 @@
       <a-input v-model:value="formState.description"/>
     </a-form-item>
     <a-form-item ref="reason" label="Recommend Reason" name="reason">
-      <a-input v-model:value="formState.reason"/>
+      <a-textarea v-model:value="formState.reason"/>
     </a-form-item>
     <a-form-item ref="image" label="Front Cover" name="image">
       <a-upload
@@ -34,7 +34,7 @@
       </a-upload>
     </a-form-item>
 
-    <a-form-item :wrapper-col="{ span: 14, offset: 10 }">
+    <a-form-item :wrapper-col="{ span: 14, offset: 10 }" style="padding-bottom: 20px">
       <a-button type="primary" @click="submit" style="margin-right: 20px">Create</a-button>
       
       <a-button type="error" @click="cancel">Cancel</a-button>
