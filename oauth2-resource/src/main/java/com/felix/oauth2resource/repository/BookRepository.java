@@ -15,4 +15,6 @@ public interface BookRepository
 
     Page<BookEntity> findByCreatedBy(String createdBy, Pageable pageable);
 
+    Page<BookEntity> findByNameContains(String name, Pageable pageable);
+
 }

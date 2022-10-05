@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,10 +31,24 @@ public class BookService {
     private BookRepository bookRepository;
 
 
-    public List<BookView> getBooks(Pageable pageable) {
-        Page<BookEntity> booksPage = bookRepository.findAll(pageable);
+    public PageableBookView getBooks(int page, int results, String bookName) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        PageRequest pageable = PageRequest.of(page, results, sort);
+        Page<BookEntity> booksPage = null;
+        if (StringUtils.isNotBlank(bookName)) {
+            booksPage = bookRepository.findByNameContains(bookName, pageable);
+        } else {
+            booksPage = bookRepository.findAll(pageable);
+        }
+        return toPageableBookView(booksPage);
+    }
+
+    private PageableBookView toPageableBookView(Page<BookEntity> booksPage) {
         List<BookEntity> books = booksPage.getContent();
-        return books.stream().map(BookView::fromEntity).collect(Collectors.toList());
+        PageableBookView view = new PageableBookView();
+        view.setBooks(books.stream().map(BookView::fromEntity).collect(Collectors.toList()));
+        view.setTotal(booksPage.getTotalElements());
+        return view;
     }
 
     public PageableBookView getMyBooks(int page, int results, String sortField, String sortOrder) {
@@ -49,11 +62,7 @@ public class BookService {
         }
         PageRequest pageRequest = PageRequest.of(page, results, sort);
         Page<BookEntity> booksPage = bookRepository.findByCreatedBy(SecurityUtils.getOwner(), pageRequest);
-        List<BookEntity> books = booksPage.getContent();
-        PageableBookView view = new PageableBookView();
-        view.setBooks(books.stream().map(BookView::fromEntity).collect(Collectors.toList()));
-        view.setTotal(booksPage.getTotalElements());
-        return view;
+        return toPageableBookView(booksPage);
     }
 
     public BookView createBook(BookDTO dto) {

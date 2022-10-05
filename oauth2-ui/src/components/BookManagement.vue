@@ -25,7 +25,16 @@
         </p>
       </template>
       <template #action="{ record }">
-        <a @click="handleDeleteBook(record)">Delete</a>
+        <!--        <a @click="handleDeleteBook(record)">Delete</a>-->
+        <a @click="showModal(record)">Delete</a>
+        <a-modal
+            title="Confirmation"
+            v-model:visible="visible"
+            :confirm-loading="confirmLoading"
+            @ok="handleOk()"
+        >
+          <p>Sure to delete the resource?</p>
+        </a-modal>
       </template>
     </a-table>
   </div>
@@ -59,7 +68,7 @@ const columns = [
     },
   },
   {
-    title: 'Image',
+    title: 'Cover',
     dataIndex: 'image',
     sorter: false,
     width: '20%',
@@ -151,18 +160,22 @@ export default defineComponent({
     };
 
     function handleDeleteBook(record) {
-      // TODO: delete request 
-      this.dataSource = this.dataSource.filter(item => item.id !== record.id);
+      axios({
+        method: 'delete',
+        url: `http://localhost:8085/api/books/${record.id}`,
+      }).then(() => {
+        reloadTableData()
+      }).catch(e => {
+        return Promise.reject(e)
+      });
+
     }
 
     function handleAddBook() {
       addMode.value = !addMode.value
     }
 
-
-    function bookSaved(e) {
-      console.log('receive bookSaved', e)
-      addMode.value = false
+    function reloadTableData() {
       let params = {
         "results": pageSize.value,
         "page": current.value - 1,
@@ -182,10 +195,40 @@ export default defineComponent({
       });
     }
 
+    function bookSaved(e) {
+      console.log('receive bookSaved', e)
+      addMode.value = false
+
+
+      reloadTableData();
+    }
+
     function bookCanceled(e) {
       console.log('receive booCanceled', e)
       addMode.value = false
     }
+
+    const visible = ref(false);
+    const confirmLoading = ref(false);
+    const toDelete = ref(0)
+    const showModal = (record) => {
+      visible.value = true;
+      toDelete.value = record.id
+    };
+    const handleOk = () => {
+      confirmLoading.value = true;
+      axios({
+        method: 'delete',
+        url: `http://localhost:8085/api/books/${toDelete.value}`,
+      }).then(() => {
+        confirmLoading.value = false;
+        visible.value = false;
+        reloadTableData()
+      }).catch(e => {
+        confirmLoading.value = false;
+        return Promise.reject(e)
+      });
+    };
 
     return {
       dataSource,
@@ -194,10 +237,14 @@ export default defineComponent({
       addMode,
       columns,
       handleTableChange,
-      handleDeleteBook: handleDeleteBook,
+      handleDeleteBook,
       handleAddBook,
       bookSaved,
       bookCanceled,
+      showModal,
+      handleOk,
+      confirmLoading,
+      visible
     };
   },
 });

@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
@@ -28,9 +26,9 @@ public class BookController {
     private BookService bookService;
 
     @GetMapping
-    public ResponseEntity<List<BookView>> getBooks(@RequestParam int pageNum, @RequestParam int pageSize) {
+    public ResponseEntity<PageableBookView> getBooks(@RequestParam int pageNum, @RequestParam int pageSize, @RequestParam(required = false) String bookName) {
         PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-        List<BookView> books = bookService.getBooks(pageRequest);
+        PageableBookView books = bookService.getBooks(pageNum, pageSize, bookName);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 

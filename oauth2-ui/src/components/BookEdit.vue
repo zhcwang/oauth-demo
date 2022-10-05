@@ -8,10 +8,10 @@
     <a-form-item ref="name" label="Book Name" name="name">
       <a-input v-model:value="formState.name"/>
     </a-form-item>
-    <a-form-item label="Book Description">
+    <a-form-item ref="description" label="Book Description" name="description">
       <a-input v-model:value="formState.description"/>
     </a-form-item>
-    <a-form-item label="Recommend Reason">
+    <a-form-item ref="reason" label="Recommend Reason" name="reason">
       <a-input v-model:value="formState.reason"/>
     </a-form-item>
     <a-form-item ref="image" label="Front Cover" name="image">
@@ -35,7 +35,8 @@
     </a-form-item>
 
     <a-form-item :wrapper-col="{ span: 14, offset: 10 }">
-      <a-button type="primary" @click="submit">Create</a-button>
+      <a-button type="primary" @click="submit" style="margin-right: 20px">Create</a-button>
+      
       <a-button type="error" @click="cancel">Cancel</a-button>
     </a-form-item>
   </a-form>
@@ -62,7 +63,6 @@ export default defineComponent({
   },
 
   setup(props, context) {
-
     const formRef = ref();
     const imageUrl = ref('');
 
@@ -135,7 +135,6 @@ export default defineComponent({
           .validate()
           .then(() => {
             let formData = toRaw(formState);
-            console.log('values', formState, formData);
             axios({
               method: 'post',
               url: 'http://localhost:8085/api/books/',
@@ -151,6 +150,7 @@ export default defineComponent({
                 })
               }
             }).then(res => {
+              resetForm()
               context.emit('bookSaved', res.data)
             }).catch(e => {
               return Promise.reject(e)
@@ -164,11 +164,11 @@ export default defineComponent({
     };
 
     const cancel = () => {
+      resetForm()
       context.emit('bookCanceled', null)
     };
 
     const selfUpload = ({file}) => {
-      console.log(file, 'action, file');
       const base64 = new Promise(resolve => {
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
@@ -185,7 +185,6 @@ export default defineComponent({
       });
 
     }
-
 
     return {
       formRef,

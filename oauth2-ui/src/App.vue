@@ -1,7 +1,8 @@
 <template>
   <a-layout style="min-height: 100vh">
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
-      <div class="logo"/>
+      <div class="logo">
+      </div>
       <a-menu theme="dark" v-model:selectedKeys="selectedKeys" mode="inline">
         <a-menu-item key="/books" @click="changeMenu('books')">
           <file-outlined/>
@@ -62,6 +63,14 @@ export default defineComponent({
 </script>
 
 <style>
+
+.logo {
+  background: url("assets/book.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 64px;
+}
+
 #components-layout-demo-side .logo {
   height: 32px;
   margin: 16px;
@@ -74,5 +83,15 @@ export default defineComponent({
 
 [data-theme='dark'] .site-layout .site-layout-background {
   background: #141414;
+}
+
+/*scroll bar style*/
+::-webkit-scrollbar {
+  width: 5px;
+  height: 14px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #b6b6b6;
 }
 </style>

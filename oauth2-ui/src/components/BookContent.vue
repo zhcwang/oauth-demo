@@ -7,14 +7,15 @@
           style="width: 200px"
           @search="onSearch"
       />
+      <a-tag color="blue" style="margin:2px 10px; line-height: 26px; vertical-align: center;">Total: {{ total }}</a-tag>
     </div>
     <a-row :gutter="32">
-      <a-col :span="6" v-for="book in books" v-bind:key="book.id">
-        <a-card hoverable class="book_content">
+      <a-col v-for="book in books" v-bind:key="book.id" :span="6">
+        <a-card class="book_content" hoverable>
           <template #cover>
             <img :src="book.image">
           </template>
-          <a-card-meta class="book_meta" :title="book.title">
+          <a-card-meta :title="book.name" class="book_meta">
             <template #description>
               <p class="book_description">{{ book.description }}</p>
             </template>
@@ -35,63 +36,58 @@ export default defineComponent({
   data() {
     return {
       books: [
-        {
-          "id": 1,
-          "image": "https://t7.baidu.com/it/u=355704943,1318565630&fm=193&f=GIF",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe12121212121213321312312312313123123131231232131231231232"
-        },
-        {
-          "id": 2,
-          "image": " https://t7.baidu.com/it/u=4198287529,2774471735&fm=193&f=GIF",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe"
-        },
-        {
-          "id": 3,
-          "image": "https://t7.baidu.com/it/u=1595072465,3644073269&fm=193&f=GIF",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe"
-        },
-        {
-          "id": 4,
-          "image": "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe"
-        },
-        {
-          "id": 5,
-          "image": "https://t7.baidu.com/it/u=3911840071,2534614245&fm=193&f=GIF",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe"
-        },
-        {
-          "id": 6,
-          "image": "https://t7.baidu.com/it/u=2374506090,1216769752&fm=193&f=GIF",
-          "title": "Beyond Earth",
-          "description": "This is a book about universe"
-        }
+        // {
+        //   "id": 1,
+        //   "image": "https://t7.baidu.com/it/u=355704943,1318565630&fm=193&f=GIF",
+        //   "title": "Beyond Earth",
+        //   "description": "This is a book about universe12121212121213321312312312313123123131231232131231231232"
+        // }
       ],
-      searchValue: ref('')
+      total: 0,
+      searchValue: ref(''),
+      pageSize: 8,
+      pageNumber: 0,
     }
   },
   methods: {
-    logout() {
-      alert('quit')
-    },
     onSearch(searchValue) {
       alert(searchValue)
     },
+    scrollBottom() {
+      let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+      let clientHeight = document.documentElement.clientHeight;
+      let scrollHeight = document.documentElement.scrollHeight;
+      if (Math.ceil(scrollTop + clientHeight) >= Math.floor(scrollHeight)) {
+        this.fetchNextPage()
+      }
+    },
+    fetchNextPage() {
+      let params = {
+        "pageSize": this.pageSize,
+        "pageNum": this.pageNumber,
+      }
+      if (this.searchValue) {
+        params['bookName'] = this.searchValue
+      }
+      axios({
+        method: 'get',
+        url: `http://localhost:8085/api/books?${new URLSearchParams(params)}`,
+      }).then(res => {
+        if (res.data.books.length > 0) {
+          this.total = res.data.total
+          this.books = this.books.concat(res.data.books)
+          this.pageNumber = this.pageNumber + 1
+        }
+        console.log(this.pageNumber)
+      }).catch(e => {
+        return Promise.reject(e)
+      })
+    },
   },
+
   created() {
-    axios({
-      method: 'get',
-      url: "http://localhost:8085/api/books?pageNum=0&pageSize=10",
-    }).then(res => {
-      this.books = res.data
-    }).catch(e => {
-      return Promise.reject(e)
-    })
+    window.addEventListener('scroll', this.scrollBottom);
+    this.fetchNextPage()
   }
 });
 </script>

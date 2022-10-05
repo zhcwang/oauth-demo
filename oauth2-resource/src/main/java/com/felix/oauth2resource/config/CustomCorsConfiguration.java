@@ -18,6 +18,8 @@ public class CustomCorsConfiguration {
         corsConfiguration.addAllowedMethod("GET");
         corsConfiguration.addAllowedMethod("POST");
         corsConfiguration.addAllowedMethod("OPTIONS");
+        corsConfiguration.addAllowedMethod("DELETE");
+        corsConfiguration.addAllowedMethod("PUT");
         ///corsConfiguration.addExposedHeader("head1");
         ///corsConfiguration.addExposedHeader("Location");
         UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
