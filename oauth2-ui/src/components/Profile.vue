@@ -38,9 +38,9 @@ export default defineComponent({
       //localStorage.removeItem("Authorization")
       //localStorage.removeItem("refresh_token")
      
-      console.log( this.$cookies.get('JSESSIONID'))
-      console.log( document.cookie)
-      message.info('You have been successful logout!');
+      console.log(this.$cookies.get('JSESSIONID'))
+      console.log(document.cookie)
+      message.info('To be done!');
     }
   },
   created() {

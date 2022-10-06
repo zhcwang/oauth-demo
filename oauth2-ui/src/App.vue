@@ -3,14 +3,18 @@
     <a-layout-sider v-model:collapsed="collapsed" collapsible>
       <div class="logo">
       </div>
-      <a-menu theme="dark" v-model:selectedKeys="selectedKeys" mode="inline">
-        <a-menu-item key="/books" @click="changeMenu('books')">
+      <a-menu
+          mode="inline"
+          theme="dark"
+          v-model:selectedKeys="selectedKeys"
+      >
+        <a-menu-item key="/books">
           <file-outlined/>
-          <span>Books</span>
+          <router-link to="/books" style="padding-left: 10px"><span>Books</span></router-link>
         </a-menu-item>
-        <a-menu-item key="/management" @click="changeMenu('management')">
+        <a-menu-item key="/management">
           <user-outlined/>
-          <span>Management</span>
+          <router-link to="/management" style="padding-left: 10px"><span>Management</span></router-link>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -32,7 +36,7 @@
 
 <script>
 import {FileOutlined, UserOutlined,} from '@ant-design/icons-vue';
-import {defineComponent, ref} from 'vue';
+import {defineComponent, reactive, ref, toRefs} from 'vue';
 import UserProfile from "@/components/Profile";
 import PageFooter from "@/components/Footer";
 
@@ -44,18 +48,20 @@ export default defineComponent({
     FileOutlined,
   },
 
-  data() {
-    return {
+  setup() {
+    const state = reactive({
       collapsed: ref(false),
-      selectedKeys: ref([this.$router.path]),
+      selectedKeys: ['/books'],
+    });
+
+
+    return {
+      ...toRefs(state),
     };
   },
-
-  methods: {
-    changeMenu(route) {
-
-      this.$router.push(route)
-    },
+  
+  created(){
+    this.selectedKeys = [location.pathname]
   }
 
 });

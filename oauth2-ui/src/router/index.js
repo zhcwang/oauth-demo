@@ -5,6 +5,11 @@ import axios from "axios";
 
 const routes = [
     {
+        path: '/',
+        name: 'All books',
+        component: () => import('@/components/BookContent')
+    },
+    {
         path: '/books',
         name: 'All books',
         component: () => import('@/components/BookContent')
@@ -58,7 +63,6 @@ axios.interceptors.response.use(function (response) {
     // Do something with response data
     return response;
 }, function (error) {
-    // TODO: Request exception handler
     let status = error.response.status
     console.error(error.message)
     if (status === 400) {
