@@ -2,11 +2,12 @@ import {createRouter, createWebHistory} from 'vue-router'
 import {message} from 'ant-design-vue';
 import {v4 as uuidv4} from 'uuid';
 import axios from "axios";
+import config from "../config"
 
 const routes = [
     {
         path: '/',
-        name: 'All books',
+        name: 'Home',
         component: () => import('@/components/BookContent')
     },
     {
@@ -79,16 +80,13 @@ axios.interceptors.response.use(function (response) {
     return Promise.reject(error);
 });
 
-const OAUTH_SERVER_ADDR = "http://localhost:10380/oauth"
-const OAUTH_SERVER_REDIRECT_URI = window.location.protocol + "//" + window.location.hostname + ":" + window.location.port + "/books";
-
 function redirectToLoginPage() {
     message.error('Please login first.');
     let state = uuidv4();
 
-    let url = OAUTH_SERVER_ADDR + "/authorize?client_id=book_share&response_type=code" +
+    let url = config.app.authServerUrl + "/authorize?client_id=" + config.app.clientId + "&response_type=code" +
         "&state=" + state +
-        "&redirect_uri=" + OAUTH_SERVER_REDIRECT_URI;
+        "&redirect_uri=" + config.app.redirectUrl;
     // cache state
     localStorage.setItem(state, window.location.href)
 
@@ -107,10 +105,10 @@ router.beforeEach(async (to, from, next) => {
             return;
         }
         let authorizationCode = to.query.code;
-        let tokenUrl = OAUTH_SERVER_ADDR + "/token?" +
-            "client_id=book_share" +
+        let tokenUrl = config.app.authServerUrl + "/token?" +
+            "client_id=" + config.app.clientId +
             "&grant_type=authorization_code" +
-            "&redirect_uri=" + OAUTH_SERVER_REDIRECT_URI +
+            "&redirect_uri=" + config.app.redirectUrl +
             "&code=" + authorizationCode;
         // http://localhost:10380/oauth/token?client_id=book_share&grant_type=authorization_code&redirect_uri=http://localhost:8088/books&code=80830773dda144ca926b497bd297583b
         await axios
