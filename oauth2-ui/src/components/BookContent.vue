@@ -73,6 +73,7 @@ export default defineComponent({
       pageNumber: -1,
       detailVisible: false,
       selected: {},
+      onLoading: false
     }
   },
   methods: {
@@ -91,7 +92,10 @@ export default defineComponent({
       let clientHeight = document.documentElement.clientHeight;
       let scrollHeight = document.documentElement.scrollHeight;
       if (Math.ceil(scrollTop + clientHeight) >= Math.floor(scrollHeight)) {
-        this.fetchNextPage(this.onFetchSuccess)
+        if (!this.onLoading) {
+          this.onLoading = true
+          this.fetchNextPage(this.onFetchSuccess)
+        }
       }
     },
     onFetchSuccess(res) {
@@ -113,9 +117,10 @@ export default defineComponent({
         method: 'get',
         url: `${config.app.apiSeverUrl}/api/books?${new URLSearchParams(params)}`,
       }).then(res => {
-
+        this.onLoading = false
         successCallback(res)
       }).catch(e => {
+        this.onLoading = false
         return Promise.reject(e)
       })
     },
