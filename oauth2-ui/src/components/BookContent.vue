@@ -51,6 +51,8 @@
 import {defineComponent, ref} from "vue";
 import axios from "axios";
 import moment from "moment";
+import config from "../config"
+
 export default defineComponent({
   components: {},
   name: 'BookContent',
@@ -109,7 +111,7 @@ export default defineComponent({
       }
       axios({
         method: 'get',
-        url: `http://localhost:8085/api/books?${new URLSearchParams(params)}`,
+        url: `${config.app.apiSeverUrl}/api/books?${new URLSearchParams(params)}`,
       }).then(res => {
 
         successCallback(res)

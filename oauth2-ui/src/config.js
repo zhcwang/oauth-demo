@@ -3,7 +3,8 @@ const config = {
     app: {
         authServerUrl:  "http://localhost:10380/oauth",
         clientId: "book_share",
-        redirectUrl: "http://localhost:8088/books"
+        redirectUrl: "http://localhost:8088/books",
+        apiSeverUrl: "http://localhost:8085",
     },
 };
 

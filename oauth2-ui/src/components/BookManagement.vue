@@ -47,6 +47,7 @@ import {usePagination} from 'vue-request';
 import {computed, defineComponent, ref} from 'vue';
 import BookEdit from "@/components/BookEdit";
 import axios from "axios";
+import config from "../config"
 
 const columns = [
   {
@@ -109,7 +110,7 @@ const queryData = params => {
   }
   return axios({
     method: 'get',
-    url: `http://localhost:8085/api/books/_my?${new URLSearchParams(queryParams)}`,
+    url: `${config.app.apiSeverUrl}/api/books/_my?${new URLSearchParams(queryParams)}`,
   });
 };
 
@@ -162,7 +163,7 @@ export default defineComponent({
     function handleDeleteBook(record) {
       axios({
         method: 'delete',
-        url: `http://localhost:8085/api/books/${record.id}`,
+        url: `${config.app.apiSeverUrl}/api/books/${record.id}`,
       }).then(() => {
         reloadTableData()
       }).catch(e => {
@@ -186,7 +187,7 @@ export default defineComponent({
       }
       axios({
         method: 'get',
-        url: `http://localhost:8085/api/books/_my?${new URLSearchParams(params)}`,
+        url: `${config.app.apiSeverUrl}/api/books/_my?${new URLSearchParams(params)}`,
       }).then(res => {
         dataSourceRef.value = res.data.books
         total.value = res.data.total
@@ -219,7 +220,7 @@ export default defineComponent({
       confirmLoading.value = true;
       axios({
         method: 'delete',
-        url: `http://localhost:8085/api/books/${toDelete.value}`,
+        url: `${config.app.apiSeverUrl}/api/books/${toDelete.value}`,
       }).then(() => {
         confirmLoading.value = false;
         visible.value = false;

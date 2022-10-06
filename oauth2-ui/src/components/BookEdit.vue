@@ -48,6 +48,8 @@ import {defineComponent, reactive, ref, toRaw} from 'vue';
 import {LoadingOutlined, PlusOutlined} from '@ant-design/icons-vue';
 import {message} from 'ant-design-vue';
 import axios from "axios";
+import config from "../config"
+
 // import axios from "axios";
 
 
@@ -137,7 +139,7 @@ export default defineComponent({
             let formData = toRaw(formState);
             axios({
               method: 'post',
-              url: 'http://localhost:8085/api/books/',
+              url: `${config.app.apiSeverUrl}/api/books/`,
               //headers: {'content-type': 'application/x-www-form-urlencoded'},
               headers: {'content-type': 'multipart/form-data'},
               data: {

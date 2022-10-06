@@ -10,11 +10,11 @@
       >
         <a-menu-item key="/books">
           <file-outlined/>
-          <router-link to="/books" style="padding-left: 10px"><span>Books</span></router-link>
+          <span><router-link to="/books" style="padding-left: 10px"><span style="color: white">Books</span></router-link></span>
         </a-menu-item>
         <a-menu-item key="/management">
           <user-outlined/>
-          <router-link to="/management" style="padding-left: 10px"><span>Management</span></router-link>
+          <span><router-link to="/management" style="padding-left: 10px"><span style="color: white">Management</span></router-link></span>
         </a-menu-item>
       </a-menu>
     </a-layout-sider>
@@ -59,9 +59,15 @@ export default defineComponent({
       ...toRefs(state),
     };
   },
-  
-  created(){
-    this.selectedKeys = [location.pathname]
+
+  created() {
+    let key;
+    if ("/" === location.pathname) {
+      key = '/books'
+    } else {
+      key = location.pathname
+    }
+    this.selectedKeys = [key]
   }
 
 });
